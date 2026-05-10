@@ -1,4 +1,15 @@
 package com.utn.lunchflowbackend.repository;
 
-public class PedidoRepository {
+import com.utn.lunchflowbackend.model.Pedido;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+
+@Repository
+public interface PedidoRepository extends JpaRepository<Pedido, Long> {
+    // Buscar todos los pedidos de una semana específica (para el balance)
+    List<Pedido> findByMenuSemanalIdMenu(Long idMenu);
+
+    // Buscar si un usuario ya pidió esta semana (para evitar duplicados)
+    boolean existsByUsuarioLegajoUserAndMenuSemanalIdMenu(String legajo, Long idMenu);
 }
