@@ -8,6 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface MenuSemanalRepository extends JpaRepository<MenuSemanal, Long> {
-    // Método extra para encontrar el menú activo (estadoMenu = true)
+
     Optional<MenuSemanal> findByEstadoMenuTrue();
 }
