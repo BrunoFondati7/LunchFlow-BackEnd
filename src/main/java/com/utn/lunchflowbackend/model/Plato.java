@@ -1,5 +1,6 @@
 package com.utn.lunchflowbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -10,6 +11,7 @@ public class Plato {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id_plato") // Agregá esta anotación de Jackson
     private Long idPlato;
 
     @Column(nullable = false)
