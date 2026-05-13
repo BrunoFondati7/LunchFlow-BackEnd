@@ -58,7 +58,7 @@ public class SeleccionService {
     }
 
     public List<Seleccion> obtenerPorLegajo(String legajo) {
-        // CORRECCIÓN: El método debe coincidir con el nombre en el Repository
+        // CORRECCIÓN: El metodo debe coincidir con el nombre en el Repository
         return seleccionRepository.findByLegajoCliente(legajo);
     }
 }
