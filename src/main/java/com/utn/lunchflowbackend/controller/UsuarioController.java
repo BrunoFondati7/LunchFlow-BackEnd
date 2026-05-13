@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin(origins = "*") // Importante para la conexión con Android
+@CrossOrigin(origins = "*") // Para que Android y la Web se conecten sin dramas
 public class UsuarioController {
 
     @Autowired
@@ -22,29 +22,41 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // GET para ver todos los usuarios (http://localhost:8080/api/usuarios)
+    // --- CRUD DE EMPLEADOS ---
+
+    // Listar todos los usuarios (GET /api/usuarios)
     @GetMapping
-    public List<Usuario> obtenerUsuarios() {
+    public List<Usuario> listarUsuarios() {
         return usuarioRepository.findAll();
     }
 
-    // POST para crear un usuario nuevo (útil para registrarse)
-    @PostMapping
-    public Usuario crearUsuario(@RequestBody Usuario usuario) {
+    // Guardar o Editar usuario (POST /api/usuarios/guardar)
+    // Se usa tanto para crear como para actualizar en el modal
+    @PostMapping("/guardar")
+    public Usuario guardar(@RequestBody Usuario usuario) {
         return usuarioRepository.save(usuario);
     }
 
-    // POST para el Login (http://localhost:8080/api/usuarios/login)
+    // Eliminar usuario (DELETE /api/usuarios/eliminar/{legajo})
+    @DeleteMapping("/eliminar/{legajo}")
+    public ResponseEntity<String> eliminar(@PathVariable("legajo") Long legajo) {
+        usuarioRepository.deleteById(legajo);
+        return ResponseEntity.ok("Usuario eliminado correctamente");
+    }
+
+    // --- MÓDULO DE ACCESO ---
+
+    // POST para el Login (POST /api/usuarios/login)
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        // Llamamos al servicio con los datos del DTO que ya creaste
+        // Validamos a través del service que ya tenés armado
         Usuario usuario = usuarioService.validarLogin(loginRequest.getLegajo(), loginRequest.getPassword());
 
         if (usuario != null) {
-            // ÉXITO: Devolvemos el usuario completo (incluyendo nombre, legajo, etc.)
+            // ÉXITO: Devolvemos el usuario para que Android sepa quién entró
             return ResponseEntity.ok(usuario);
         } else {
-            // ERROR: Credenciales inválidas o usuario inexistente
+            // ERROR: 401 Unauthorized
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Legajo o contraseña incorrectos");
         }

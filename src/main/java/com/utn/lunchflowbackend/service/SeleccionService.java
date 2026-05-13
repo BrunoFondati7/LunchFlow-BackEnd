@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class SeleccionService {
@@ -20,33 +21,44 @@ public class SeleccionService {
     public Seleccion guardarSeleccionCompleta(SeleccionRequest request) {
         // 1. Creamos la cabecera (Seleccion)
         Seleccion seleccion = new Seleccion();
-        seleccion.setLegajoUser(request.getLegajoUser());
+
+        // CORRECCIÓN: Usamos el setter que genera Lombok para 'legajoCliente'
+        seleccion.setLegajoCliente(request.getLegajoUser());
+
         seleccion.setIdMenu(request.getIdMenu());
         seleccion.setFechaRegistro(LocalDateTime.now());
 
-        // Guardamos la cabecera primero para tener el ID
+        // Guardamos la cabecera primero para tener el ID generado
         Seleccion seleccionGuardada = seleccionRepository.save(seleccion);
 
-        // 2. Creamos los detalles (los 5 platos)
-        for (SeleccionRequest.DetalleSeleccionDTO dto : request.getDetalles()) {
-            DetalleSeleccion detalle = new DetalleSeleccion();
+        // 2. Creamos los detalles (los platos seleccionados)
+        if (request.getDetalles() != null) {
+            for (SeleccionRequest.DetalleSeleccionDTO dto : request.getDetalles()) {
+                DetalleSeleccion detalle = new DetalleSeleccion();
 
-            // Creamos el ID compuesto
-            DetalleSeleccionId id = new DetalleSeleccionId();
-            id.setIdSeleccion(seleccionGuardada.getIdSeleccion());
-            id.setIdPlato(dto.getIdPlato());
-            id.setDiaSemana(dto.getDiaSemana());
+                // Creamos el ID compuesto
+                DetalleSeleccionId id = new DetalleSeleccionId();
+                id.setIdSeleccion(seleccionGuardada.getIdSeleccion());
+                id.setIdPlato(dto.getIdPlato());
+                id.setDiaSemana(dto.getDiaSemana());
 
-            detalle.setId(id);
-            detalle.setSeleccion(seleccionGuardada);
-            detalle.setCantidad(1); // Siempre 1 según el DER
+                detalle.setId(id);
+                detalle.setSeleccion(seleccionGuardada);
+                detalle.setCantidad(1);
 
-            // Los detalles se guardan automáticamente por el CascadeType.ALL
-            // que pusimos en la entidad Seleccion, pero si no, los agregaríamos a una lista.
-            if (seleccionGuardada.getDetalles() == null) seleccionGuardada.setDetalles(new ArrayList<>());
-            seleccionGuardada.getDetalles().add(detalle);
+                if (seleccionGuardada.getDetalles() == null) {
+                    seleccionGuardada.setDetalles(new ArrayList<>());
+                }
+                seleccionGuardada.getDetalles().add(detalle);
+            }
         }
 
+        // El save final persiste la cabecera con sus detalles (vía CascadeType.ALL)
         return seleccionRepository.save(seleccionGuardada);
+    }
+
+    public List<Seleccion> obtenerPorLegajo(String legajo) {
+        // CORRECCIÓN: El método debe coincidir con el nombre en el Repository
+        return seleccionRepository.findByLegajoCliente(legajo);
     }
 }

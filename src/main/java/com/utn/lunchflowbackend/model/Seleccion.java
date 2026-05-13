@@ -1,5 +1,6 @@
 package com.utn.lunchflowbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -15,8 +16,8 @@ public class Seleccion {
     @Column(name = "id_seleccion")
     private Integer idSeleccion;
 
-    @Column(name = "legajo_user_seleccion", length = 45)
-    private String legajoUser;
+    @Column(name = "legajo_user_seleccion")
+    private String legajoCliente;
 
     @Column(name = "id_menu_seleccion")
     private Integer idMenu;
@@ -24,7 +25,6 @@ public class Seleccion {
     @Column(name = "fecha_registro_seleccion")
     private LocalDateTime fechaRegistro;
 
-    // Relación con los detalles
-    @OneToMany(mappedBy = "seleccion", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "seleccion", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<DetalleSeleccion> detalles;
 }
